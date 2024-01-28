@@ -35,29 +35,36 @@ export default function Page({ params }: { params: { id: string } }) {
           </dl>
           <section>
             <h2>Projects</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Contact</th>
-                  <th>Start date</th>
-                  <th>End date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customer[0]?.projects.map((project) => (
-                  <tr key={project.id}>
-                    <td>{project.name}</td>
-                    <td>{project.contact}</td>
-                    <td>{project.start_date}</td>
-                    <td>{project.end_date}</td>
+            {customer[0]?.projects && customer[0]?.projects.length === 0 ? (
+              <p>This customer has no projects to be shown ☹️</p>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Contact</th>
+                    <th>Start date</th>
+                    <th>End date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {customer[0]?.projects.map((project) => (
+                    <tr key={project.id}>
+                      <td>{project.name}</td>
+                      <td>{project.contact}</td>
+                      <td>{project.start_date}</td>
+                      <td>{project.end_date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </section>
-
-          <Link href={`/`}>Go back</Link>
+          <section>
+            <Link href={`/`}>Go back</Link>
+            <button>Edit</button>
+            {!customer[0]?.isActive && <button>Delete</button>}
+          </section>
         </>
       )}
     </>

@@ -29,6 +29,7 @@ describe("Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
+
   describe("when fetching data", () => {
     it("renders loading state", async () => {
       (useGetCustomerById as jest.Mock).mockReturnValue({
@@ -72,6 +73,7 @@ describe("Page", () => {
         isError: false,
         error: null,
       });
+
       render(
         <QueryClientProvider client={queryClient}>
           <Page params={{ id: "1" }} />
@@ -83,15 +85,42 @@ describe("Page", () => {
       const customerDetailsElements = screen.getAllByRole("term");
       const customerDetailsDefinitionElements =
         screen.getAllByRole("definition");
-      const customerProjectsElements = screen.getByRole("table");
+      const customerProjectsElement = screen.getByRole("table");
       const goBackButton = screen.getByRole("link");
 
       expect(loadingElement).not.toBeInTheDocument();
       expect(errorElement).not.toBeInTheDocument();
       expect(customerDetailsElements).toHaveLength(4);
       expect(customerDetailsDefinitionElements).toHaveLength(4);
-      expect(customerProjectsElements).toBeInTheDocument();
+      expect(customerProjectsElement).toBeInTheDocument();
       expect(goBackButton).toBeInTheDocument();
+    });
+    it("do not renders Projects table if customer has no projects", async () => {
+      const modifiedMockData = mockData.map((item) => ({
+        ...item,
+        projects: [],
+      }));
+
+      (useGetCustomerById as jest.Mock).mockReturnValue({
+        data: modifiedMockData,
+        isLoading: false,
+        isError: false,
+        error: null,
+      });
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <Page params={{ id: "1" }} />
+        </QueryClientProvider>
+      );
+
+      const customerProjectsElements = screen.queryByRole("table");
+      const noProjectsMessage = screen.getByText(
+        /This customer has no projects to be shown ☹️/i
+      );
+
+      expect(customerProjectsElements).not.toBeInTheDocument();
+      expect(noProjectsMessage).toBeInTheDocument();
     });
   });
 });
