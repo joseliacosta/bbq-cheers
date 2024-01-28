@@ -1,6 +1,6 @@
 import { Customer } from "@/app/types/customers";
 
-const { API_ENDPOINT } = process.env;
+const API_ENDPOINT = process.env.API_ENDPOINT || "http://localhost:4002";
 
 export async function fetchData<T>(url: string): Promise<T> {
   try {

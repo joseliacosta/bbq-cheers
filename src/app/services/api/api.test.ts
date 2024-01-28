@@ -50,71 +50,83 @@ const mockedData = [
       "Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc.",
   },
 ];
-const { API_ENDPOINT } = process.env;
-
-describe("getAllCustomers", () => {
+describe("API", () => {
   beforeEach(() => {
-    // Mock the fetch function
-    global.fetch = jest.fn(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockedData),
-        }) as Promise<Response>
-    );
+    // Mock process.env for the test
+    process.env.API_ENDPOINT = "http://localhost:4002";
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    // Restore process.env after the test
+    delete process.env.API_KEY;
   });
 
-  it("should fetch customers successfully", async () => {
-    const customers = await getAllCustomers();
+  describe("getAllCustomers", () => {
+    beforeEach(() => {
+      // Mock the fetch function
+      global.fetch = jest.fn(
+        () =>
+          Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockedData),
+          }) as Promise<Response>
+      );
+    });
 
-    expect(customers).toEqual(mockedData);
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith(`${API_ENDPOINT}/companies`);
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it("should fetch customers successfully", async () => {
+      const customers = await getAllCustomers();
+
+      expect(customers).toEqual(mockedData);
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(fetch).toHaveBeenCalledWith(
+        `${process.env.API_ENDPOINT}/companies`
+      );
+    });
+
+    it("should throw an error if the response is not ok", async () => {
+      global.fetch = jest.fn(
+        () =>
+          Promise.resolve({
+            ok: false,
+            json: () => Promise.resolve({ error: "Something went wrong" }),
+          }) as Promise<Response> // Cast the return value to Promise<Response>
+      );
+
+      await expect(getAllCustomers()).rejects.toThrow("Something went wrong");
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("should throw an error if there is an error during the fetch", async () => {
+      global.fetch = jest.fn(() => Promise.reject(new Error("Network error")));
+
+      await expect(getAllCustomers()).rejects.toThrow("Network error");
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it("should throw an error if the response is not ok", async () => {
-    global.fetch = jest.fn(
-      () =>
-        Promise.resolve({
-          ok: false,
-          json: () => Promise.resolve({ error: "Something went wrong" }),
-        }) as Promise<Response> // Cast the return value to Promise<Response>
-    );
+  describe("getCustomerById", () => {
+    it("should fetch a customer by id successfully", async () => {
+      const customerId = "40c0bad7-f1a6-4173-bd44-7ebef044905d";
 
-    await expect(getAllCustomers()).rejects.toThrow("Something went wrong");
-    expect(fetch).toHaveBeenCalledTimes(1);
-  });
+      global.fetch = jest.fn(
+        () =>
+          Promise.resolve({
+            ok: true,
+            json: () => Promise.resolve(mockedData[0]),
+          }) as Promise<Response>
+      );
 
-  it("should throw an error if there is an error during the fetch", async () => {
-    global.fetch = jest.fn(() => Promise.reject(new Error("Network error")));
+      const customer = await getCustomerById(customerId);
 
-    await expect(getAllCustomers()).rejects.toThrow("Network error");
-    expect(fetch).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("getCustomerById", () => {
-  it("should fetch a customer by id successfully", async () => {
-    const customerId = "40c0bad7-f1a6-4173-bd44-7ebef044905d";
-
-    global.fetch = jest.fn(
-      () =>
-        Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve(mockedData[0]),
-        }) as Promise<Response>
-    );
-
-    const customer = await getCustomerById(customerId);
-
-    expect(customer).toEqual(mockedData[0]);
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith(
-      `${API_ENDPOINT}/companies?id=${customerId}`
-    );
+      expect(customer).toEqual(mockedData[0]);
+      expect(fetch).toHaveBeenCalledTimes(1);
+      expect(fetch).toHaveBeenCalledWith(
+        `${process.env.API_ENDPOINT}/companies?id=${customerId}`
+      );
+    });
   });
 });
