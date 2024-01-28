@@ -61,7 +61,7 @@ export default function Home() {
                   <td>{item.industry}</td>
                   <td>{item.isActive ? "Active" : "Inactive"}</td>
                   <td>
-                    <Link href={`/details/${item.id}`}>See more</Link>
+                    <Link href={`pages/details/${item.id}`}>See more</Link>
                   </td>
                 </tr>
               ))
