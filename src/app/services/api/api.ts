@@ -1,5 +1,5 @@
 import { Customer } from "@/app/types/customers";
-import { fetchData, sendData } from "./fetch";
+import { deleteData, fetchData, sendData } from "./fetch";
 
 const API_ENDPOINT = process.env.API_ENDPOINT || "http://localhost:4002";
 
@@ -27,6 +27,15 @@ export async function updateCustomer(
     );
 
     return updatedCompany;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function deleteCustomer(customerId: string) {
+  const apiUrl = `${API_ENDPOINT}/companies/${customerId}`;
+  try {
+    deleteData(apiUrl, customerId);
   } catch (error) {
     throw error;
   }

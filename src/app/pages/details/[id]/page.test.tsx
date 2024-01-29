@@ -1,9 +1,17 @@
 import { render, screen } from "@testing-library/react";
+import { useRouter } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "react-query";
+
 import { useGetCustomerById } from "../../../services/queries/queries";
 import Page from "./page";
 
 jest.mock("../../../services/queries/queries");
+
+jest.mock("next/router", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
 
 const queryClient = new QueryClient();
 

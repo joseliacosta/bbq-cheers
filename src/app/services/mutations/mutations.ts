@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 
 import { Customer } from "@/app/types/customers";
-import { updateCustomer } from "../api/api";
+import { deleteCustomer, updateCustomer } from "../api/api";
 
 export function useUpdateCustomer() {
   const queryClient = useQueryClient();
@@ -25,4 +25,15 @@ export function useUpdateCustomer() {
   );
 
   return mutation;
+}
+
+export function useDeleteCustomer() {
+  const queryClient = useQueryClient();
+
+  return useMutation(deleteCustomer, {
+    onSuccess: () => {
+      // Invalidate and refetch the customer data query after successful deletion
+      queryClient.invalidateQueries("customers");
+    },
+  });
 }

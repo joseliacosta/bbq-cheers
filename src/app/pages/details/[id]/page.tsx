@@ -1,14 +1,19 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 
 import { useGetCustomerById } from "@/app/services/queries/queries";
-import { useUpdateCustomer } from "@/app/services/mutations/mutations";
+import {
+  useDeleteCustomer,
+  useUpdateCustomer,
+} from "@/app/services/mutations/mutations";
 import { Customer } from "@/app/types/customers";
 import CustomerEditForm from "@/app/components/CustomerForm";
 
 export default function Page({ params }: { params: { id: string } }) {
   const customerId = params.id;
+  const router = useRouter();
   const {
     data: customer,
     error,
@@ -16,6 +21,7 @@ export default function Page({ params }: { params: { id: string } }) {
     isError,
   } = useGetCustomerById(params);
   const updateCustomerMutation = useUpdateCustomer();
+  const deleteCustomerMutation = useDeleteCustomer();
 
   const [isEditing, setEditing] = useState(false);
 
@@ -25,6 +31,19 @@ export default function Page({ params }: { params: { id: string } }) {
 
   const handleCancel = () => {
     setEditing(false);
+  };
+
+  const handleDelete = async () => {
+    if (confirm("Are you sure you want to delete this customer?") == true) {
+      try {
+        deleteCustomerMutation.mutateAsync(customerId);
+        setEditing(false);
+        alert("Customer deleted successfully");
+        router.push("/");
+      } catch (error) {
+        alert(error);
+      }
+    }
   };
 
   const handleSave = async (formData: Partial<Customer>) => {
@@ -117,7 +136,9 @@ export default function Page({ params }: { params: { id: string } }) {
               <section>
                 <Link href={`/`}>Go back</Link>
                 <button onClick={handleEditClick}>Edit</button>
-                {!customer[0]?.isActive && <button>Delete</button>}
+                {!customer[0]?.isActive && (
+                  <button onClick={handleDelete}>Delete</button>
+                )}
               </section>
             </div>
           )}

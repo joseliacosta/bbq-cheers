@@ -34,3 +34,25 @@ export async function sendData<T>(
     throw error;
   }
 }
+
+export async function deleteData(url: string, customerId: string) {
+  const apiUrl = url;
+
+  try {
+    const response = await fetch(apiUrl, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: customerId }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete customer. Status: ${response.status}`);
+    }
+    console.log("Customer deleted successfully.");
+  } catch (error) {
+    console.error("Error deleting customer:", (error as Error).message);
+    throw error;
+  }
+}

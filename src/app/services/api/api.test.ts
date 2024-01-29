@@ -1,5 +1,9 @@
-import { Customer } from "@/app/types/customers";
-import { getAllCustomers, getCustomerById, updateCustomer } from "./api";
+import {
+  deleteCustomer,
+  getAllCustomers,
+  getCustomerById,
+  updateCustomer,
+} from "./api";
 import * as apiFetch from "./fetch";
 
 const mockedData = [
@@ -152,6 +156,22 @@ describe("API", () => {
         `${process.env.API_ENDPOINT}/companies/${mockCompanyId}`,
         "PATCH",
         mockUpdatedData
+      );
+    });
+  });
+
+  describe("deleteCustomer", () => {
+    it("should call deleteData with the correct parameters", async () => {
+      const mockCompanyId = "40c0bad7-f1a6-4173-bd44-7ebef044905d";
+      (apiFetch.deleteData as jest.Mock).mockResolvedValueOnce({
+        id: "40c0bad7-f1a6-4173-bd44-7ebef044905d",
+      });
+
+      await deleteCustomer(mockCompanyId);
+
+      expect(apiFetch.deleteData).toHaveBeenCalledWith(
+        `${process.env.API_ENDPOINT}/companies/${mockCompanyId}`,
+        `${mockCompanyId}`
       );
     });
   });
