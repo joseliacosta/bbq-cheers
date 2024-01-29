@@ -11,6 +11,6 @@ export type Customer = {
   isActive: boolean;
   company: string;
   industry: string;
-  projects: Project[];
+  projects?: Project[];
   about: string;
 };
