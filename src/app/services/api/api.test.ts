@@ -1,4 +1,6 @@
-import { getAllCustomers, getCustomerById } from "./api";
+import { Customer } from "@/app/types/customers";
+import { getAllCustomers, getCustomerById, updateCustomer } from "./api";
+import * as apiFetch from "./fetch";
 
 const mockedData = [
   {
@@ -50,82 +52,106 @@ const mockedData = [
       "Morbi odio odio, elementum eu, interdum eu, tincidunt in, leo. Maecenas pulvinar lobortis est. Phasellus sit amet erat. Nulla tempus. Vivamus in felis eu sapien cursus vestibulum. Proin eu mi. Nulla ac enim. In tempor, turpis nec euismod scelerisque, quam turpis adipiscing lorem, vitae mattis nibh ligula nec sem. Duis aliquam convallis nunc.",
   },
 ];
+
+jest.mock("./fetch");
+
 describe("API", () => {
   beforeEach(() => {
-    // Mock process.env for the test
     process.env.API_ENDPOINT = "http://localhost:4002";
   });
 
   afterEach(() => {
-    // Restore process.env after the test
     delete process.env.API_KEY;
   });
 
   describe("getAllCustomers", () => {
-    beforeEach(() => {
-      // Mock the fetch function
-      global.fetch = jest.fn(
-        () =>
-          Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve(mockedData),
-          }) as Promise<Response>
-      );
-    });
-
     afterEach(() => {
-      jest.resetAllMocks();
+      // Reset the mock after each test
+      jest.clearAllMocks();
     });
 
     it("should fetch customers successfully", async () => {
+      (apiFetch.fetchData as jest.Mock).mockResolvedValueOnce(mockedData);
       const customers = await getAllCustomers();
 
       expect(customers).toEqual(mockedData);
-      expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch).toHaveBeenCalledWith(
+      expect(apiFetch.fetchData).toHaveBeenCalledTimes(1);
+      expect(apiFetch.fetchData).toHaveBeenCalledWith(
         `${process.env.API_ENDPOINT}/companies`
       );
     });
 
     it("should throw an error if the response is not ok", async () => {
-      global.fetch = jest.fn(
-        () =>
-          Promise.resolve({
-            ok: false,
-            json: () => Promise.resolve({ error: "Something went wrong" }),
-          }) as Promise<Response> // Cast the return value to Promise<Response>
+      (apiFetch.fetchData as jest.Mock).mockRejectedValueOnce(
+        new Error("Failed to fetch data")
       );
 
-      await expect(getAllCustomers()).rejects.toThrow("Something went wrong");
-      expect(fetch).toHaveBeenCalledTimes(1);
-    });
-
-    it("should throw an error if there is an error during the fetch", async () => {
-      global.fetch = jest.fn(() => Promise.reject(new Error("Network error")));
-
-      await expect(getAllCustomers()).rejects.toThrow("Network error");
-      expect(fetch).toHaveBeenCalledTimes(1);
+      await expect(getAllCustomers()).rejects.toThrowError(
+        "Failed to fetch data"
+      );
     });
   });
 
   describe("getCustomerById", () => {
     it("should fetch a customer by id successfully", async () => {
-      const customerId = "40c0bad7-f1a6-4173-bd44-7ebef044905d";
+      const mockCustomerId = "1";
+      const mockResponse = mockedData[0];
 
-      global.fetch = jest.fn(
-        () =>
-          Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve(mockedData[0]),
-          }) as Promise<Response>
+      // Mock the implementation of fetchData
+      (apiFetch.fetchData as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+      const result = await getCustomerById(mockCustomerId);
+
+      expect(apiFetch.fetchData).toHaveBeenCalledWith(
+        `${process.env.API_ENDPOINT}/companies?id=${mockCustomerId}`
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe("updateCustomer", () => {
+    it("should call sendData with the correct parameters", async () => {
+      const mockCompanyId = "123";
+      const mockUpdatedData = { company: "Updated Company" };
+      const mockResponse = {
+        id: "123",
+        name: "Updated Company",
+        isAtive: true,
+        industry: "insurance",
+        about: "something about company",
+      };
+
+      // Mock the implementation of sendData
+      (apiFetch.sendData as jest.Mock).mockResolvedValueOnce(mockResponse);
+
+      const result = await updateCustomer(mockCompanyId, mockUpdatedData);
+
+      expect(apiFetch.sendData).toHaveBeenCalledWith(
+        `${process.env.API_ENDPOINT}/companies/${mockCompanyId}`,
+        "PATCH",
+        mockUpdatedData
       );
 
-      const customer = await getCustomerById(customerId);
+      expect(result).toEqual(mockResponse);
+    });
 
-      expect(customer).toEqual(mockedData[0]);
-      expect(fetch).toHaveBeenCalledTimes(1);
-      expect(fetch).toHaveBeenCalledWith(
-        `${process.env.API_ENDPOINT}/companies?id=${customerId}`
+    it("should throw an error if sendData fails", async () => {
+      const mockCompanyId = "123";
+      const mockUpdatedData = { company: "Updated Company" };
+
+      // Mock sendData to throw an error
+      (apiFetch.sendData as jest.Mock).mockRejectedValueOnce(
+        new Error("Failed to update")
+      );
+
+      await expect(
+        updateCustomer(mockCompanyId, mockUpdatedData)
+      ).rejects.toThrowError("Failed to update");
+
+      expect(apiFetch.sendData).toHaveBeenCalledWith(
+        `${process.env.API_ENDPOINT}/companies/${mockCompanyId}`,
+        "PATCH",
+        mockUpdatedData
       );
     });
   });
