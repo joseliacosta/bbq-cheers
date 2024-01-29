@@ -151,7 +151,11 @@ describe("Home page", () => {
         isError: false,
       });
 
-      render(<Home />);
+      render(
+        <QueryClientProvider client={queryClient}>
+          <Home />
+        </QueryClientProvider>
+      );
 
       // Initial render should display all items
       expect(screen.getByText("Abbott, Olson and Moen")).toBeInTheDocument();
@@ -181,7 +185,11 @@ describe("Home page", () => {
         isError: false,
       });
 
-      render(<Home />);
+      render(
+        <QueryClientProvider client={queryClient}>
+          <Home />
+        </QueryClientProvider>
+      );
 
       // Initial render should display all items
       expect(screen.getByText("Abbott, Olson and Moen")).toBeInTheDocument();
@@ -204,6 +212,77 @@ describe("Home page", () => {
         ).not.toBeInTheDocument();
         expect(screen.getByText("No results")).toBeInTheDocument();
       });
+    });
+
+    it("renders select status element with correct options", () => {
+      (useGetAllCustomers as jest.Mock).mockReturnValue({
+        data: mockData,
+        isLoading: false,
+        isError: false,
+      });
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <Home />
+        </QueryClientProvider>
+      );
+
+      const selectElement = screen.getByRole("combobox");
+      const allStatusOption = screen.getByRole("option", {
+        name: "All Status",
+      });
+      const activeOption = screen.getByRole("option", { name: "Active" });
+      const inactiveOption = screen.getByRole("option", { name: "Inactive" });
+
+      expect(selectElement).toBeInTheDocument();
+      expect(allStatusOption).toBeInTheDocument();
+      expect(activeOption).toBeInTheDocument();
+      expect(inactiveOption).toBeInTheDocument();
+    });
+
+    it("filters data by status", async () => {
+      (useGetAllCustomers as jest.Mock).mockReturnValue({
+        data: mockData,
+        isLoading: false,
+        isError: false,
+        error: null,
+      });
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <Home />
+        </QueryClientProvider>
+      );
+
+      const statusSelect = screen.getByRole("combobox");
+      fireEvent.change(statusSelect, { target: { value: "Active" } });
+
+      expect(screen.getByText("Doyle-Kessler")).toBeInTheDocument();
+    });
+
+    it("filters data by industry and status", async () => {
+      (useGetAllCustomers as jest.Mock).mockReturnValue({
+        data: mockData,
+        isLoading: false,
+        isError: false,
+        error: null,
+      });
+
+      render(
+        <QueryClientProvider client={queryClient}>
+          <Home />
+        </QueryClientProvider>
+      );
+
+      const searchInput = screen.getByRole("searchbox");
+      fireEvent.change(searchInput, { target: { value: "tech" } });
+
+      const statusSelect = screen.getByRole("combobox");
+      fireEvent.change(statusSelect, { target: { value: "Inactive" } });
+      screen.debug();
+      expect(
+        screen.getByText("Abbott, Ullrich and Durgan")
+      ).toBeInTheDocument();
     });
   });
 });
