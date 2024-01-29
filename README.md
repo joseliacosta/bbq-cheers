@@ -103,6 +103,6 @@ Resets db.json to the original data (db.base.json).
 ## <a name='available-endpoits'></a> Available endpoints
 
 - `GET http://localhost:4002/companies`: get the full list of companies
-- `GET http://localhost:4002/people/{id}`: get the company with id `{id}`
-- `PATCH http://localhost:4002/people/{id}`: update the company with id `{id}`
-- `DELETE http://localhost:4002/people/{id}`: delete the inactive company with id `{id}`
+- `GET http://localhost:4002/companies/{id}`: get the company with id `{id}`
+- `PATCH http://localhost:4002/companies/{id}`: update the company with id `{id}`
+- `DELETE http://localhost:4002/companies/{id}`: delete the inactive company with id `{id}`
