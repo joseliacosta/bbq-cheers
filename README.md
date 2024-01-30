@@ -6,7 +6,7 @@ This repo implements a single page application that allows it to view its active
 
 The customer initial data is a json hosted here but in order to enable all API methods, this repo is using a `json-server` resource that offer the main http requests we use for the features described above.
 
-You can also see the complete "roadmap" with all features mapped and the planned progress for the next iterations on Projects tab.
+You can also see the complete "roadmap" with all features mapped and the planned progress for the next iterations on [Projects tab](https://github.com/users/joseliacosta/projects/3).
 
 ---
 
@@ -81,6 +81,12 @@ services/
 types: # models
 server # The fake API mentioned above.
 ```
+
+### Testing strategy
+
+Inspired by the not so old (but still gold) article _[Write tests. Not too many. Mostly integration](https://kentcdodds.com/blog/write-tests)_ I tried to keep the same main stragegy that is: Put more energy on the tests that reflect our user interaction with the interface but not so expensive as E2E journeys. Integration tests.
+
+I tried apply TDD (Test-Driven-Development) as much as I could but you know, Frontend stack has a different set of configs so, sometimes is hard to just try to follow it _by-the-book_.
 
 ## <a name='available-scripts'></a> Available scripts
 

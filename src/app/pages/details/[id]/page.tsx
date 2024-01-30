@@ -137,8 +137,16 @@ export default function Page({ params }: { params: { id: string } }) {
                           <TableRow key={project.id}>
                             <TableCell>{project.name}</TableCell>
                             <TableCell>{project.contact}</TableCell>
-                            <TableCell>{project.start_date}</TableCell>
-                            <TableCell>{project.end_date}</TableCell>
+                            <TableCell>
+                              {new Date(project.start_date).toLocaleDateString(
+                                "en-GB"
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {new Date(project.end_date).toLocaleDateString(
+                                "en-GB"
+                              )}
+                            </TableCell>
                           </TableRow>
                         ))}
                     </tbody>
