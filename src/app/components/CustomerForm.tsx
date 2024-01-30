@@ -1,5 +1,45 @@
 import { useForm, Controller } from "react-hook-form";
 import { Customer } from "../types/customers";
+import styled from "styled-components";
+import { FooterActions } from "./FooterActions";
+import { Button } from "./Button";
+
+const FormControl = styled.div`
+  display: flex;
+  gap: 16px;
+  padding-bottom: 16px;
+  & > label {
+    min-width: 150px;
+    text-align: right;
+    font-weight: bold;
+  }
+  & > input {
+    border: 1px solid var(--colors-lynch);
+    border-radius: 4px;
+    padding: 6px 10px 6px 10px;
+
+    background: var(--colors-blank);
+    outline-color: var(--colors-darkGray);
+    outline-offset: 4px;
+    outline-width: 2px;
+    cursor: pointer;
+    width: 300px;
+
+    ${({ theme }) => theme.typography.bodySmallBold};
+    color: var(--colors-bayoux);
+
+    &:hover,
+    &:focus,
+    &:not(:placeholder-shown) {
+      background-color: var(--colors-catskillWhite);
+    }
+
+    &:not(:placeholder-shown) {
+      outline: none;
+      color: var(--colors-darkBlue);
+    }
+  }
+`;
 
 interface CustomerEditFormProps {
   onSubmit: (formData: Customer) => void;
@@ -18,23 +58,23 @@ const CustomerEditForm: React.FC<CustomerEditFormProps> = ({
 
   return (
     <form role="form" onSubmit={handleSubmit(onSubmit)}>
-      <div>
+      <FormControl>
         <label>Company name:</label>
         <Controller
           name="company"
           control={control}
           render={({ field }) => <input {...field} />}
         />
-      </div>
-      <div>
+      </FormControl>
+      <FormControl>
         <label>Industry:</label>
         <Controller
           name="industry"
           control={control}
           render={({ field }) => <input {...field} />}
         />
-      </div>
-      <div>
+      </FormControl>
+      <FormControl>
         <label>Status:</label>
         <div>
           <label>
@@ -72,20 +112,21 @@ const CustomerEditForm: React.FC<CustomerEditFormProps> = ({
             Inactive
           </label>
         </div>
-      </div>
-      <div>
+      </FormControl>
+      <FormControl>
         <label>About:</label>
         <Controller
           name="about"
           control={control}
           render={({ field }) => <input {...field} />}
         />
-      </div>
-
-      <button type="submit">Save</button>
-      <button type="button" onClick={onCancel}>
-        Cancel
-      </button>
+      </FormControl>
+      <FooterActions>
+        <Button type="button" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit">Save</Button>
+      </FooterActions>
     </form>
   );
 };
