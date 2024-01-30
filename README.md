@@ -32,6 +32,10 @@ To successfully run the project, you'll need to ensure you have Node.js version 
 
 1. Clone the project repository by runnning `git clone git@github.com:joseliacosta/bbq-cheers.git`
 2. Install the dependencies `npm install`
+3. Renames `.env-example` to `.env`
+4. Run `npm run seed-db` to reset API `.json`
+5. Run `npm run server` to start the API running on `port:4002`
+6. Run `npm run dev` to start SPA on `http://localhost:3000`
 
 ## <a name='about-the-project'></a> About the project
 
@@ -71,7 +75,7 @@ To successfully run the project, you'll need to ensure you have Node.js version 
 ```
 
 ```
-components # small components that can be reused.
+components # mostly styled components that can be reused.
 context # Context used in the app.
 page.tsx # main page
 services/
