@@ -1,7 +1,7 @@
 import { ThemeProvider } from "styled-components";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useRouter } from "next/navigation";
+
 import { QueryClient, QueryClientProvider } from "react-query";
 
 import { useGetCustomerById } from "../../../services/queries/queries";

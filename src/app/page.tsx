@@ -1,8 +1,20 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import styled from "styled-components";
 
 import { useGetAllCustomers } from "./services/queries/queries";
-import { useEffect, useState } from "react";
+import { Table, TableCell, TableRow, TableThCell } from "./components/Table";
+import { SearchField } from "./components/SearchField";
+import { Select } from "./components/SelectField";
+import { Container } from "./components/Container";
+
+const Header = styled.header`
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+`;
 
 export default function Home() {
   const { data, isLoading, error, isError } = useGetAllCustomers();
@@ -45,16 +57,15 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <Container>
       <h1>BBQ cheers! 🥘😋🍹</h1>
-      <header>
-        <h2>Filter</h2>
-        <input
+      <Header>
+        <SearchField
           type="search"
           placeholder="Search companies by industry"
           onChange={handleInputChange}
         />
-        <select
+        <Select
           name="status"
           onChange={handleStatusChange}
           value={selectedStatus || ""}
@@ -62,40 +73,42 @@ export default function Home() {
           <option value="">All Status</option>
           <option value="Active">Active</option>
           <option value="Inactive">Inactive</option>
-        </select>
-      </header>
+        </Select>
+      </Header>
       {isError && <p>{(error as Error).message}</p>}
       {isLoading && <p>Loading...</p>}
       {filteredData && (
-        <table>
+        <Table>
           <thead>
             <tr>
-              <th>Company name</th>
-              <th>Industry</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <TableThCell>Company name</TableThCell>
+              <TableThCell>Industry</TableThCell>
+              <TableThCell>Status</TableThCell>
+              <TableThCell>Actions</TableThCell>
             </tr>
           </thead>
           <tbody>
             {filteredData.length === 0 ? (
-              <tr>
-                <td>No results</td>
-              </tr>
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  No results
+                </TableCell>
+              </TableRow>
             ) : (
               filteredData?.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.company}</td>
-                  <td>{item.industry}</td>
-                  <td>{item.isActive ? "Active" : "Inactive"}</td>
-                  <td>
+                <TableRow key={item.id}>
+                  <TableCell>{item.company}</TableCell>
+                  <TableCell>{item.industry}</TableCell>
+                  <TableCell>{item.isActive ? "Active" : "Inactive"}</TableCell>
+                  <TableCell>
                     <Link href={`pages/details/${item.id}`}>See more</Link>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))
             )}
           </tbody>
-        </table>
+        </Table>
       )}
-    </main>
+    </Container>
   );
 }
