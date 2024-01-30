@@ -17,7 +17,7 @@ const CustomerEditForm: React.FC<CustomerEditFormProps> = ({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form role="form" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label>Company name:</label>
         <Controller

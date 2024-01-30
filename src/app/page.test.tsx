@@ -275,11 +275,11 @@ describe("Home page", () => {
       );
 
       const searchInput = screen.getByRole("searchbox");
-      fireEvent.change(searchInput, { target: { value: "tech" } });
+      userEvent.type(searchInput, "tech");
 
       const statusSelect = screen.getByRole("combobox");
-      fireEvent.change(statusSelect, { target: { value: "Inactive" } });
-      screen.debug();
+      userEvent.selectOptions(statusSelect, ["Inactive"]);
+
       expect(
         screen.getByText("Abbott, Ullrich and Durgan")
       ).toBeInTheDocument();

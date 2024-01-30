@@ -16,7 +16,7 @@ Table of Contents
 - [Getting started](#getting-staterd)
 - [About the project](#about-the-project)
 - [Available scripts](#available-scripts)
-- [Available endpoints]()
+- [Available endpoints](#available-endpoits)
 
 ## <a name='prerequisites'></a> Prerequisites
 

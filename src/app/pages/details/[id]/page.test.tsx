@@ -1,11 +1,22 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useRouter } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 import { useGetCustomerById } from "../../../services/queries/queries";
+import {
+  useUpdateCustomer,
+  useDeleteCustomer,
+} from "../../../services/mutations/mutations";
 import Page from "./page";
+import userEvent from "@testing-library/user-event";
 
 jest.mock("../../../services/queries/queries");
+jest.mock("../../../services/mutations/mutations", () => ({
+  useUpdateCustomer: () => ({
+    mutate: jest.fn(),
+  }),
+  useDeleteCustomer: jest.fn(),
+}));
 
 jest.mock("next/router", () => ({
   useRouter: () => ({
@@ -130,5 +141,89 @@ describe("Page", () => {
       expect(customerProjectsElements).not.toBeInTheDocument();
       expect(noProjectsMessage).toBeInTheDocument();
     });
+  });
+
+  it("enters editing state when the edit button is clicked", async () => {
+    (useGetCustomerById as jest.Mock).mockReturnValue({
+      data: mockData,
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Page params={{ id: "1" }} />
+      </QueryClientProvider>
+    );
+
+    const editButton = screen.getByRole("button", { name: /edit/i });
+    userEvent.click(editButton);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("table")).not.toBeInTheDocument();
+      expect(screen.getByRole("form")).toBeInTheDocument();
+    });
+  });
+
+  it("exits editing state when the save button is clicked", async () => {
+    // initial data
+    (useGetCustomerById as jest.Mock).mockReturnValue({
+      data: mockData[0],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Page params={{ id: "1" }} />
+      </QueryClientProvider>
+    );
+
+    const mockedUpdatedData = { id: "123", company: "new company name" };
+    (useUpdateCustomer().mutate as jest.Mock).mockResolvedValue(
+      mockedUpdatedData
+    );
+
+    const editButton = screen.getByRole("button", { name: /edit/i });
+    await userEvent.click(editButton);
+    const saveButton = screen.getByRole("button", { name: /save/i });
+    expect(saveButton).toBeInTheDocument();
+    await userEvent.click(saveButton);
+
+    waitFor(() => {
+      expect(screen.getByRole("button", { name: /edit/i })).toBeInTheDocument();
+    });
+  });
+
+  it("removes a user when click in delete button", async () => {
+    (useGetCustomerById as jest.Mock).mockReturnValue({
+      data: mockData[0],
+      isLoading: false,
+      isError: false,
+      error: null,
+    });
+    const confirmSpy = jest.spyOn(window, "confirm");
+    confirmSpy.mockImplementation(jest.fn(() => true));
+
+    const alertSpy = jest.spyOn(window, "alert");
+    alertSpy.mockImplementation(jest.fn());
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <Page params={{ id: "1" }} />
+      </QueryClientProvider>
+    );
+
+    const deleteButton = screen.getByRole("button", { name: /delete/i });
+    userEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(useDeleteCustomer).toHaveBeenCalled();
+    });
+
+    confirmSpy.mockRestore();
+    alertSpy.mockRestore();
   });
 });
