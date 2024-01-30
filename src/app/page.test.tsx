@@ -4,6 +4,9 @@ import { QueryClient, QueryClientProvider } from "react-query";
 
 import { useGetAllCustomers } from "./services/queries/queries";
 import Home from "./page";
+import { ThemeProvider } from "styled-components";
+import theme from "./theme/theme";
+import GlobalStyles from "./theme/GlobalStyles";
 
 const queryClient = new QueryClient();
 jest.mock("./services/queries/queries");
@@ -83,6 +86,17 @@ const mockData = [
   },
 ];
 
+function renderCustomerDetailsPage() {
+  return render(
+    <ThemeProvider theme={theme}>
+      <GlobalStyles />
+      <QueryClientProvider client={queryClient}>
+        <Home />
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
+
 describe("Home page", () => {
   describe("when fetching data", () => {
     it("renders loading state when isLoading is true", async () => {
@@ -90,11 +104,7 @@ describe("Home page", () => {
         data: undefined,
         isLoading: true,
       }),
-        render(
-          <QueryClientProvider client={queryClient}>
-            <Home />
-          </QueryClientProvider>
-        );
+        renderCustomerDetailsPage();
 
       const loadingElement = screen.getByText(/Loading.../i);
       expect(loadingElement).toBeInTheDocument();
@@ -107,11 +117,7 @@ describe("Home page", () => {
         isError: true,
         error: new Error("Error"),
       }),
-        render(
-          <QueryClientProvider client={queryClient}>
-            <Home />
-          </QueryClientProvider>
-        );
+        renderCustomerDetailsPage();
 
       const loadingElement = screen.queryByText(/Loading.../i);
       const errorElement = screen.getByText(/Error/i);
@@ -127,12 +133,7 @@ describe("Home page", () => {
         isError: false,
         error: null,
       }),
-        render(
-          <QueryClientProvider client={queryClient}>
-            <Home />
-          </QueryClientProvider>
-        );
-
+        renderCustomerDetailsPage();
       const loadingElement = screen.queryByText(/Loading.../i);
       const errorElement = screen.queryByText(/Error/i);
       const customersRows = screen.getAllByRole("row");
@@ -151,11 +152,7 @@ describe("Home page", () => {
         isError: false,
       });
 
-      render(
-        <QueryClientProvider client={queryClient}>
-          <Home />
-        </QueryClientProvider>
-      );
+      renderCustomerDetailsPage();
 
       // Initial render should display all items
       expect(screen.getByText("Abbott, Olson and Moen")).toBeInTheDocument();
@@ -185,11 +182,7 @@ describe("Home page", () => {
         isError: false,
       });
 
-      render(
-        <QueryClientProvider client={queryClient}>
-          <Home />
-        </QueryClientProvider>
-      );
+      renderCustomerDetailsPage();
 
       // Initial render should display all items
       expect(screen.getByText("Abbott, Olson and Moen")).toBeInTheDocument();
@@ -221,11 +214,7 @@ describe("Home page", () => {
         isError: false,
       });
 
-      render(
-        <QueryClientProvider client={queryClient}>
-          <Home />
-        </QueryClientProvider>
-      );
+      renderCustomerDetailsPage();
 
       const selectElement = screen.getByRole("combobox");
       const allStatusOption = screen.getByRole("option", {
@@ -248,11 +237,7 @@ describe("Home page", () => {
         error: null,
       });
 
-      render(
-        <QueryClientProvider client={queryClient}>
-          <Home />
-        </QueryClientProvider>
-      );
+      renderCustomerDetailsPage();
 
       const statusSelect = screen.getByRole("combobox");
       fireEvent.change(statusSelect, { target: { value: "Active" } });
@@ -268,11 +253,7 @@ describe("Home page", () => {
         error: null,
       });
 
-      render(
-        <QueryClientProvider client={queryClient}>
-          <Home />
-        </QueryClientProvider>
-      );
+      renderCustomerDetailsPage();
 
       const searchInput = screen.getByRole("searchbox");
       userEvent.type(searchInput, "tech");

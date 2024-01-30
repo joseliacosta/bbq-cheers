@@ -1,4 +1,6 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { ThemeProvider } from "styled-components";
+import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useRouter } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "react-query";
 
@@ -8,7 +10,8 @@ import {
   useDeleteCustomer,
 } from "../../../services/mutations/mutations";
 import Page from "./page";
-import userEvent from "@testing-library/user-event";
+import GlobalStyles from "@/app/theme/GlobalStyles";
+import theme from "@/app/theme/theme";
 
 jest.mock("../../../services/queries/queries");
 jest.mock("../../../services/mutations/mutations", () => ({
@@ -18,7 +21,7 @@ jest.mock("../../../services/mutations/mutations", () => ({
   useDeleteCustomer: jest.fn(),
 }));
 
-jest.mock("next/router", () => ({
+jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
   }),
@@ -44,6 +47,17 @@ const mockData = [
   },
 ];
 
+function renderCustomerDetailsPage() {
+  return render(
+    <ThemeProvider theme={theme}>
+      <GlobalStyles />
+      <QueryClientProvider client={queryClient}>
+        <Page params={{ id: "1" }} />
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+}
+
 describe("Page", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -55,11 +69,7 @@ describe("Page", () => {
         data: undefined,
         isLoading: true,
       }),
-        render(
-          <QueryClientProvider client={queryClient}>
-            <Page params={{ id: "1" }} />
-          </QueryClientProvider>
-        );
+        renderCustomerDetailsPage();
 
       const loadingElement = screen.getByText(/Loading.../i);
       expect(loadingElement).toBeInTheDocument();
@@ -72,11 +82,7 @@ describe("Page", () => {
         isError: true,
         error: new Error("Error"),
       }),
-        render(
-          <QueryClientProvider client={queryClient}>
-            <Page params={{ id: "1" }} />
-          </QueryClientProvider>
-        );
+        renderCustomerDetailsPage();
 
       const loadingElement = screen.queryByText(/Loading.../i);
       const errorElement = screen.getByText(/Error/i);
@@ -93,11 +99,7 @@ describe("Page", () => {
         error: null,
       });
 
-      render(
-        <QueryClientProvider client={queryClient}>
-          <Page params={{ id: "1" }} />
-        </QueryClientProvider>
-      );
+      renderCustomerDetailsPage();
 
       const loadingElement = screen.queryByText(/Loading.../i);
       const errorElement = screen.queryByText(/Error/i);
@@ -127,11 +129,7 @@ describe("Page", () => {
         error: null,
       });
 
-      render(
-        <QueryClientProvider client={queryClient}>
-          <Page params={{ id: "1" }} />
-        </QueryClientProvider>
-      );
+      renderCustomerDetailsPage();
 
       const customerProjectsElements = screen.queryByRole("table");
       const noProjectsMessage = screen.getByText(
@@ -151,11 +149,7 @@ describe("Page", () => {
       error: null,
     });
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Page params={{ id: "1" }} />
-      </QueryClientProvider>
-    );
+    renderCustomerDetailsPage();
 
     const editButton = screen.getByRole("button", { name: /edit/i });
     userEvent.click(editButton);
@@ -175,11 +169,7 @@ describe("Page", () => {
       error: null,
     });
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Page params={{ id: "1" }} />
-      </QueryClientProvider>
-    );
+    renderCustomerDetailsPage();
 
     const mockedUpdatedData = { id: "123", company: "new company name" };
     (useUpdateCustomer().mutate as jest.Mock).mockResolvedValue(
@@ -210,11 +200,7 @@ describe("Page", () => {
     const alertSpy = jest.spyOn(window, "alert");
     alertSpy.mockImplementation(jest.fn());
 
-    render(
-      <QueryClientProvider client={queryClient}>
-        <Page params={{ id: "1" }} />
-      </QueryClientProvider>
-    );
+    renderCustomerDetailsPage();
 
     const deleteButton = screen.getByRole("button", { name: /delete/i });
     userEvent.click(deleteButton);
