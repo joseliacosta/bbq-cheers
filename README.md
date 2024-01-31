@@ -2,7 +2,7 @@
 
 Imagine we are going to host twice a year a BBQ with its active customers. The selection of customers is based on the industry type (insurances, tech, etc).
 
-This repo implements a single page application that allows it to view its active and inactive customers. It is also be possible to create new customers, edit customers, delete inactive customers and filter customers by industry.
+This repo implements a single page application that allows it to view its active and inactive customers. It is also be possible to create new customers(🚧), edit customers, delete inactive customers and filter customers by industry.
 
 The customer initial data is a json hosted here but in order to enable all API methods, this repo is using a `json-server` resource that offer the main http requests we use for the features described above.
 
